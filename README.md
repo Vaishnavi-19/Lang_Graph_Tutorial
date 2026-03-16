@@ -82,6 +82,29 @@ So state is what gives continuity to the workflow. Without state, each node woul
 - Easy to extend: add memory, validation, or guardrail nodes
 - Easy to debug: transitions are explicit and visualized in `flow.png`
 
+## Legacy LangChain Executor vs LangGraph
+
+Both can run LLM + tools workflows, but they are designed for different levels of control.
+
+| Topic | Legacy LangChain Executor | LangGraph |
+|---|---|---|
+| Control flow | Mostly predefined loop behavior | Explicit graph control with nodes and edges |
+| State handling | Hidden or implicit in executor internals | First-class state object (like `MessagesState`) |
+| Branching | Limited and harder to customize | Native conditional routing |
+| Multi-step workflows | Works for simple agent loops | Better for complex, long-running workflows |
+| Debuggability | Harder to inspect exact transitions | Easy to reason about transitions and graph paths |
+| Extensibility | Add tools/prompts, but loop internals are less flexible | Add custom nodes (memory, validation, guardrails, human approval) |
+| Production readiness | Good for quick prototypes | Better for deterministic and maintainable agent systems |
+
+### Quick Rule of Thumb
+
+- Use Legacy LangChain Executor when you want a fast, simple agent with minimal orchestration.
+- Use LangGraph when you need explicit routing, durable state, and workflow-level control.
+
+For this tutorial, LangGraph is the better fit because the ReAct loop is modeled directly as:
+
+`agent_reason -> act -> agent_reason -> ... -> END`
+
 ## Files
 
 - `main.py`: graph definition, routing logic, and app execution
@@ -97,4 +120,41 @@ python main.py
 ```
 
 The script also exports a graph image to `flow.png`.
-# Lang_Graph_Tutorial-
+
+## Evolution of ReAct Agents
+
+ReAct agents have evolved from simple prompt loops to structured workflow systems.
+
+### Phase 1: Prompt-Only Reasoning
+
+- The model reasons in plain text without external tools.
+- Good for basic Q&A, but limited by model memory and knowledge cutoff.
+
+### Phase 2: ReAct with Tool Calling
+
+- The model alternates between reasoning and tool use.
+- This enables web search, calculators, and custom functions.
+- Most early implementations used fixed loop executors.
+
+### Phase 3: Executor-Based Agents
+
+- Framework executors made ReAct patterns easier to use.
+- Fast to prototype, but harder to customize deeply.
+- Complex branching, retries, and human-in-the-loop steps can become difficult.
+
+### Phase 4: Graph-Based ReAct (LangGraph)
+
+- ReAct becomes an explicit graph of nodes, edges, and state.
+- Control flow is transparent and deterministic.
+- Easy to add memory, guardrails, validation nodes, and approval steps.
+- Better suited for production AI systems.
+
+### Phase 5: Durable and Multi-Agent Workflows
+
+- Modern systems combine multiple specialized agents.
+- Workflows support persistence, resumability, and richer orchestration.
+- ReAct remains the core pattern, but now inside robust graph architectures.
+
+### Key Takeaway
+
+ReAct is still the foundation, but the implementation has matured from "single loop" agents to "stateful graph" systems. This tutorial reflects that shift by implementing ReAct with LangGraph.
